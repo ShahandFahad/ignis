@@ -26,3 +26,8 @@ export const handleUserMessage = async (user: string, message: string) => {
 
     return chat;
 };
+
+
+export const getUserChatHistory = async (user: string) => {
+    return Message.find({ user }).sort({ createdAt: -1 });
+}
