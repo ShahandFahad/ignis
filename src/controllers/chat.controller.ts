@@ -1,15 +1,23 @@
 import { Request, Response } from "express";
 import { getUserChatHistory, handleUserMessage } from "../services/chat.service";
+import { MessageSchema } from "../validators/chat.validator";
 
 export const sendMessage = async (req: Request, res: Response): Promise<any> => {
     try {
-        const { user, message } = req.body;
+        const parseResult = MessageSchema.safeParse(req.body);
 
-        if (!user || !message) {
-            return res.status(200).json({ error: 'user and message are required' });
+
+        if (!parseResult.success) {
+            const errors = parseResult.error.errors.map((e) => e.message);
+            return res.status(400).json({ errors });
         }
 
+
+        const { user, message } = parseResult.data; 
+
+
         const chat = await handleUserMessage(user, message);
+
 
         return res.status(200).json(chat);
     } catch (error) {
