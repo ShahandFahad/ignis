@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from 'express';
 const morgan = require('morgan');
+import chatRoutes from './routes/chat.routes';
 
 // init express app
 const app: Express = express();
@@ -13,6 +14,9 @@ app.use(morgan('dev'));
 app.get('/chatbot/health', (req: Request, res: Response) => {
     res.status(200).json({ message: 'chatbot is live' });
 });
+
+// Routes
+app.use('/api/chat', chatRoutes);
 
 
 export default app;
