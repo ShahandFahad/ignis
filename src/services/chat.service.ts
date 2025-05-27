@@ -1,6 +1,8 @@
+import OpenAI from 'openai';
 import Message from '../models/message.model';
+import openai from '../config/openai';
 
-
+// TEMP - Reply Function
 export const generateBotReply = (input: string): string => {
     const cleaned = input.trim().toLowerCase();
 
@@ -14,10 +16,32 @@ export const generateBotReply = (input: string): string => {
 };
 
 
+
 export const handleUserMessage = async (user: string, message: string) => {
-    const botReply = generateBotReply(message);
+    // const botReply = generateBotReply(message);
+
+    // generate replies
+    const aiReply = await openai.chat.completions.create({
+        model: 'gpt-3.5-turbo',
+        messages: [
+            { role: 'system', content: 'You are a helpful assistant.' },
+            { role: 'user', content: message },
+        ],
+    });
+
+    // pick reply via index
+    const reply = aiReply.choices[0]?.message.content || 'Sorry, I had trouble replying.';
 
     // Save to DB
+    const newMessage = await Message.create({
+        user,
+        message,
+        reply,
+    });
+
+    return newMessage;
+
+    /*
     const chat = await Message.create({
         user,
         message,
@@ -25,6 +49,7 @@ export const handleUserMessage = async (user: string, message: string) => {
     });
 
     return chat;
+    */
 };
 
 
