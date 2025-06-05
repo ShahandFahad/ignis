@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 const morgan = require('morgan');
 import chatRoutes from './routes/chat.routes';
+import authRoutes from './routes/auth.routes';
 
 // init express app
 const app: Express = express();
@@ -16,6 +17,7 @@ app.get('/chatbot/health', (req: Request, res: Response) => {
 });
 
 // Routes
+app.use('/api/auth', authRoutes);
 app.use('/api/chat', chatRoutes);
 
 
