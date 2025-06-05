@@ -9,7 +9,7 @@ export interface IUser extends Document {
 };
 
 // User Model Schema
-const userShema = new Schema<IUser>(
+const userSchema = new Schema<IUser>(
     {
         username: { type: String, required: true, unique: true },
         password: { type: String, required: true },
@@ -17,8 +17,8 @@ const userShema = new Schema<IUser>(
     { timestamps: true },
 );
 
-// Avoid stroing plain password to DB. Salt & Hash it here in document pre-save middleware before saving
-userShema.pre('save', async function(next) {
+// Avoid storing plain password to DB. Salt & Hash it here in document pre-save middleware before saving
+userSchema.pre('save', async function(next) {
     // if password is unchanged then immediate return - do not salt password
     if (!this.isModified('password')) return next();
 
@@ -29,6 +29,10 @@ userShema.pre('save', async function(next) {
     return next();
 });
 
+// Validate user password during login by comparing via  document method
+userSchema.methods.comparePassword = async function(candidate: string) {
+    return await bcrypt.compare(candidate, this.password);
+};
 // User Model
-export const User = mongoose.model<IUser>('User', userShema);
+export const User = mongoose.model<IUser>('User', userSchema);
 
