@@ -1,0 +1,23 @@
+version: '3.8'
+services:
+  chatbot-api:
+    build: .
+    ports:
+      - '5050:5050'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
