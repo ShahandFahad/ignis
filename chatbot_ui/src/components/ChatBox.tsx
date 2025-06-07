@@ -4,11 +4,16 @@ import { useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 
+type Message = {
+    role: 'user' | 'bot';
+    text: string;
+};
+
 const ChatBox = () => {
     // TODO: get user after login from local storage
     const [user, setUser] = useState('Default');
     const [message, setMessage] = useState('');
-    const [chatLog, setChatLog] = useState<string[]>([]);
+    const [chatLog, setChatLog] = useState<Message[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -28,7 +33,11 @@ const ChatBox = () => {
 
             // get data and set the chatLog
             const data = await res.json();
-            setChatLog((prev) => [...prev, `You: ${message}`, `Bot: ${data?.reply.response}`]);
+            setChatLog((prev) => [
+                ...prev,
+                { role: 'user', text: message },
+                { role: 'bot', text: data?.reply.response },
+            ]);
             setMessage('');
         } catch (error) {
             setError('Something went wrong. Please try again.');
@@ -43,8 +52,10 @@ const ChatBox = () => {
             <div className="border rounded-md p-4 h-64 overflow-y-auto bg-muted">
                 {
                     chatLog.map((msg, i) => (
-                        <p key={i} className="text-sm">
-                            {msg}
+                        <p key={i} className={msg.role === 'user' ? 'text-right' : 'text-left'}>
+                            <span className="inline-block px-3 py-1 rounded bg-muted">
+                                <strong>{msg.role === 'user' ? 'You' : 'Bot'}:</strong> {msg.text}
+                            </span>
                         </p>
                     ))
                 }
