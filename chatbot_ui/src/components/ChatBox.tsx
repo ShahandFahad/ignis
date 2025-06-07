@@ -9,21 +9,33 @@ const ChatBox = () => {
     const [user, setUser] = useState('Default');
     const [message, setMessage] = useState('');
     const [chatLog, setChatLog] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
 
     // send message
     const sendMessage = async () => {
         if (!message) return;
 
-        const res = await fetch('/api/message', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user, message }),
-        });
+        try {
+            setLoading(true);
+            setError('');
 
-        // get data and set the chatLog
-        const data = await res.json();
-        setChatLog((prev) => [...prev, `You: ${message}`, `Bot: ${data?.reply.response}`]);
-        setMessage('');
+            const res = await fetch('/api/message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user, message }),
+            });
+
+            // get data and set the chatLog
+            const data = await res.json();
+            setChatLog((prev) => [...prev, `You: ${message}`, `Bot: ${data?.reply.response}`]);
+            setMessage('');
+        } catch (error) {
+            setError('Something went wrong. Please try again.');
+            console.log(`ChatBox Err: ${error}`);
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
@@ -43,7 +55,10 @@ const ChatBox = () => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                 />
-                <Button onClick={sendMessage}>Send Message</Button>
+                {error && <p className="text-red-500 text-sm">{error}</p>}
+                <Button onClick={sendMessage} disabled={loading}>
+                    {loading ? 'Sending...' : 'Send'}
+                </Button>
             </div>
         </div>
     );
