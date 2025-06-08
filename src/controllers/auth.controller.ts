@@ -18,14 +18,17 @@ export const register = async (req: Request, res: Response): Promise<any> => {
         if (exists) return res.status(400).json({ error: 'Username already exists' });
 
         // create new user
-        const user: Document = await User.create({ username, password });
+        const user = await User.create({ username, password });
 
         // get jwt token
         const userId = user._id as string;
         const token = generateToken(userId);
 
+        // remove password from response
+        user.password = '';
+
         // send jwt token in response
-        res.status(201).json({ token });
+        res.status(201).json({ token, user });
     } catch (err) {
         res.status(500).json({ error: `Server error: ${err}` });
     }
@@ -48,8 +51,11 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         const userId = user._id as string;
         const token = generateToken(userId);
 
+        // remove password from response
+        user.password = '';
+
         // send jwt token in response
-        res.status(200).json({ token });
+        res.status(200).json({ token, user });
     } catch (err) {
         res.status(500).json({ error: `Server error: ${err}` });
     }
