@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
         );
 
     } catch (error) {
-        console.log(`Failed to fetch from backend: ${error}`);
+        console.log(`Failed to send message to server: ${error}`);
         return NextResponse.json(
             { message: error },
             { status: 500 }
