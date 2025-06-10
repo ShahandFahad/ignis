@@ -36,7 +36,7 @@ export const handleUserMessage = async (user: string, message: string) => {
     const newMessage = await Message.create({
         user,
         message,
-        reply,
+        response: reply,
     });
 
     return newMessage;
