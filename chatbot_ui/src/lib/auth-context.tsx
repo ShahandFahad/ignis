@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from "next/navigation";
-import { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 // Context types
 export type User = {
@@ -14,8 +14,9 @@ export type User = {
 }
 type AuthContextType = {
     user: User | null;
-    register : (email: string, password: string) => Promise<void>;
+    register: (email: string, password: string) => Promise<void>;
     login: (email: string, password: string) => Promise<void>;
+    isUserLoggedIn: () => React.ReactNode;
     logout: () => void;
 };
 
@@ -85,6 +86,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    // Check if user exists or not
+    const isUserLoggedIn = () => {
+        const userInfo = localStorage.getItem('user');
+        if (!userInfo) {
+            router.push('/auth')
+        }
+
+        return <p className="text-red-500 text-2xl">Redirecting to auth...</p>
+    }
 
     // Logout user
     const logout = () => {
@@ -95,7 +105,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
 
     return (
-        <AuthContext.Provider value={{ user, register, login, logout }}>
+        <AuthContext.Provider value={{ user, register, login, isUserLoggedIn, logout }}>
             {children}
         </AuthContext.Provider>
     );

@@ -12,7 +12,7 @@ type Message = {
 
 const ChatBox = () => {
     // const [user, setUser] = useState('');
-    const { user, logout } = useAuth();
+    const { user, isUserLoggedIn, logout } = useAuth();
     const [message, setMessage] = useState('');
     const [chatLog, setChatLog] = useState<Message[]>([]);
     const [loading, setLoading] = useState(false);
@@ -27,9 +27,15 @@ const ChatBox = () => {
         setUser(id);
         */
 
-        // Load chat history
-        getMessages(user?.username as string);
-    }, [user?.username]);
+        if (user) {
+            // Load chat history
+            getMessages(user?.username as string);
+        } else {
+            // check user
+            isUserLoggedIn();
+        }
+
+    }, [user]);
 
     // send message
     const sendMessage = async () => {
