@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
+import { useAuth } from "@/lib/auth-context";
 
 type Message = {
     role: 'user' | 'bot';
@@ -10,27 +11,32 @@ type Message = {
 };
 
 const ChatBox = () => {
-    // TODO: get user after login from local storage
-    const [user, setUser] = useState('');
+    // const [user, setUser] = useState('');
+    const { user, logout } = useAuth();
     const [message, setMessage] = useState('');
     const [chatLog, setChatLog] = useState<Message[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
     useEffect(() => {
+        /*
+        // got user from local storage instead of using this
         // get user from local storage
-        // TODO: replace this with username from local storage
         const id = localStorage.getItem('sessionId') || crypto.randomUUID()
         localStorage.setItem('sessionId', id);
         setUser(id);
+        */
 
         // Load chat history
-        getMessages(id);
-    }, []);
+        getMessages(user?.username as string);
+    }, [user?.username]);
 
     // send message
     const sendMessage = async () => {
         if (!message) return;
+        const username = user?.username;
+        if (!username) return;
+
 
         try {
             setLoading(true);
@@ -40,7 +46,7 @@ const ChatBox = () => {
             const res = await fetch('/api/message', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user, message }),
+                body: JSON.stringify({ username, message }),
             });
 
             // get data and set the chatLog
@@ -75,6 +81,7 @@ const ChatBox = () => {
             const res = await fetch(`/api/message/${username}`, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
             });
 
             // get data and set the chatLog
@@ -134,7 +141,10 @@ const ChatBox = () => {
                 }
 
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 m-1">
+                <Button onClick={logout} className="bg-red-500 hover:bg-red-600 cursor-pointer">
+                    Logout
+                </Button>
                 <Input
                     placeholder="Ask something..."
                     value={message}
