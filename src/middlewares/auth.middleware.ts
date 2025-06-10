@@ -8,15 +8,34 @@ interface AuthRequest extends Request {
 
 // protect authorized routes by validating jwt token
 export const protect = (req: AuthRequest, res: Response, next: NextFunction): any => {
+
+    // store token received via http req request or cookies
+    let token = null;
+
     const authHeader = req.headers.authorization;
 
+    // get token form auth header or cookies, else return 401
+    if (authHeader?.startsWith('Bearer ')) {
+        // get token from auth header
+        token = authHeader.split(' ')[1];
+    } else if (req.cookies.jwt) {
+        token = req.cookies.jwt;
+    }
+    else {
+        return res.status(401).json({ error: 'No token provided. Your are not logged in! Please log in to get access.' });
+    }
+
     // check if token exists
+    /*
+    const authHeader = req.headers.authorization;
+
     if (!authHeader?.startsWith('Bearer ')) {
         return res.status(401).json({ error: 'No token provided' });
     }
 
     // get token from auth header
-    const token = authHeader.split(' ')[1];
+    token = authHeader.split(' ')[1];
+    */
 
 
     // check token validation

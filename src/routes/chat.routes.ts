@@ -4,7 +4,7 @@ import { protect } from '../middlewares/auth.middleware';
 
 const router = express.Router();
 
-router.get('/history/:username', getHistory);
+router.get('/history/:username', protect, getHistory);
 // router.route('/message').post(protect, sendMessage);
 router.post('/message', protect, sendMessage);
 

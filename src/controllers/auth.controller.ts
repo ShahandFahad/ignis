@@ -1,12 +1,19 @@
-import { Request, Response } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 import { User } from '../models/user.model';
-import jwt from 'jsonwebtoken';
-import { Document } from 'mongoose';
-import { error } from 'console';
+import jwt, { Jwt } from 'jsonwebtoken';
 
 // generate jwt token
 const generateToken = (id: string) =>
     jwt.sign({ id }, process.env.JWT_SECRET as string, { expiresIn: '1d' });
+
+// cookies options
+function getCookiesOptions(): CookieOptions {
+    return {
+        expires: new Date(Date.now() + 3 * 60 * 60 * 1000), // 3 days
+        httpOnly: true,
+        // secure: true, TODO: Enable it later
+    };
+}
 
 // create new user
 export const register = async (req: Request, res: Response): Promise<any> => {
@@ -23,6 +30,10 @@ export const register = async (req: Request, res: Response): Promise<any> => {
         // get jwt token
         const userId = user._id as string;
         const token = generateToken(userId);
+
+        // add cookies to response
+        const cookiesOptions = getCookiesOptions();
+        res.cookie('jwt', token, cookiesOptions);
 
         // remove password from response
         user.password = '';
@@ -50,6 +61,10 @@ export const login = async (req: Request, res: Response): Promise<any> => {
         // get jwt token
         const userId = user._id as string;
         const token = generateToken(userId);
+
+        // add cookies to response
+        const cookiesOptions = getCookiesOptions();
+        res.cookie('jwt', token, cookiesOptions);
 
         // remove password from response
         user.password = '';
